@@ -11,7 +11,10 @@ class Target extends ResourceController
     public function index()
     {
         $model = new TargetModel();
-        $data = $model->orderBy('no', 'DESC')->findAll();
+        $data = $model->orderBy('no', 'ASC')->findAll();
+        foreach($data as $index => $row){
+            $data[$index]['tugas'] = $model->getTugas($row['no']);
+        }
         return $this->respond($data);
     }
  

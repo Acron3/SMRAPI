@@ -15,5 +15,12 @@ class TargetModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = ['no','nama_target','target_selesai','progress','sisa_hari'];
 
-   
+   public function getTugas($id)
+    {
+        $builder = $this->db->table('daftar_tugas');
+        $builder->join('target', 'target.no = daftar_tugas.target_id');
+        $builder->where('daftar_tugas.target_id',$id);
+        $query = $builder->get();
+        return $query->getResultArray();
+    }
 }

@@ -28,7 +28,7 @@ class Login extends ResourceController
          return $this->respond(['status' => false, 'message' => 'Email salah'], 401);
       }
 
-      if (!password_verify($password, ($user ? $user['password'] : null)) && !password_verify($password, ($admin ? $admin['password'] : null))) {
+      if (!password_verify($password, ($user ? $user['password'] : $admin['password']))) {
          return $this->respond(['status' => false, 'message' => 'Password salah'], 401);
       }
 

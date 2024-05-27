@@ -19,6 +19,9 @@ class DaftarKegiatan extends Migration
                 'type' => 'VARCHAR',
                 'constraint' => '255',
             ],
+            'deskripsi' => [
+                'type' => 'TEXT',
+            ],
             'lokasi' => [
                 'type' => 'VARCHAR',
                 'constraint' => '255',

@@ -12,6 +12,9 @@ class Daftar_Kegiatan extends ResourceController
     {
         $model = new Daftar_KegiatanModel();
         $data = $model->orderBy('no', 'DESC')->findAll();
+        foreach ($data as $index => $row){
+            $data[$index]['user'] = $model->getUser($row['no']);
+        }
         return $this->respond($data);
     }
  
@@ -34,6 +37,7 @@ class Daftar_Kegiatan extends ResourceController
         $data = [
             'no' => $this->request->getVar('no'),
             'nama_kegiatan' => $this->request->getVar('nama_kegiatan'),
+            'deskripsi' => $this->request->getVar('deskripsi'),
             'lokasi' => $this->request->getVar('lokasi'),
             'rab' => $this->request->getVar('rab'),
             'tgl_mulai' => $this->request->getVar('tgl_mulai'),
@@ -63,6 +67,7 @@ class Daftar_Kegiatan extends ResourceController
             $data = [
                 'no' => $json->no,
                 'nama_kegiatan' => $json->nama_kegiatan,
+                'deskripsi' => $json->deskripsi,
                 'lokasi' => $json->lokasi,
                 'rab' => $json->rab,
                 'tgl_mulai' => $json->tgl_mulai,
@@ -75,6 +80,7 @@ class Daftar_Kegiatan extends ResourceController
             $data = [
                 'no' => $input['no'],
                 'nama_kegiatan' => $input['nama_kegiatan'],
+                'deskripsi' => $input['deskripsi'],
                 'lokasi' => $input['lokasi'],
                 'rab' => $input['rab'],
                 'tgl_mulai' => $input['tgl_mulai'],

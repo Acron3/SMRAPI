@@ -19,7 +19,7 @@ class Daftar_Tugas extends ResourceController
     public function show($no = null)
     {
         $model = new Daftar_TugasModel();
-        $data = $model->getWhere(['no' => $no])->getResult();
+        $data = $model->where(['no' => $no])->findAll();
         if($data){
             return $this->respond($data);
         }else{

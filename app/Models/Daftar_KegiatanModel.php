@@ -23,4 +23,5 @@ class Daftar_KegiatanModel extends Model
         $query = $builder->get();
         return $query->getResultArray();
     }
+
 }

@@ -7,7 +7,8 @@ use App\Models\PengeluaranModel;
 class Pengeluaran extends ResourceController
 {
     use ResponseTrait;
-    // get all product
+    
+    // get all pengeluaran
     public function index()
     {
         $model = new PengeluaranModel();
@@ -15,109 +16,146 @@ class Pengeluaran extends ResourceController
         return $this->respond($data);
     }
  
-    // get single product
-    public function show($id = null)
+    // get pengeluaran by id_kegiatan
+    public function show($id_kegiatan = null)
     {
         $model = new PengeluaranModel();
-        $data = $model->getWhere(['id' => $id])->getResult();
+        $data = $model->where(['id_kegiatan' => $id_kegiatan])->findAll();
         if($data){
             return $this->respond($data);
         }else{
-            return $this->failNotFound('No Data Found with number '.$id);
+            return $this->failNotFound('Tidak ada data pengeluaran dengan id_kegiatan '.$id_kegiatan);
         }
     }
  
-    // create a product
+    // create a pengeluaran
+    // Validasi data
     public function create()
     {
+        if (!$this->validate([
+            'tanggal_pengeluaran' => 'required',
+            'id_kegiatan' => 'required',
+            'qty_pengeluaran' => 'required|numeric|greater_than_equal_to[0]',
+            'deskripsi_pengeluaran' => 'required',
+            'harga_pengeluaran' => 'required|numeric|greater_than_equal_to[0]',
+            'total_pengeluaran' => 'required|numeric|greater_than_equal_to[0]',
+        ])) {
+            return $this->fail($this->validator->getErrors());
+        }
+        
         $model = new PengeluaranModel();
+        $nota = $this->request->getFile('nota_pengeluaran');
+        $notaName = null;
+        if ($nota && !$nota->hasMoved()) {
+            if ($nota->getSize() <= 5242880 && in_array($nota->getExtension(), ['jpg', 'png', 'jpeg'])) {
+                $notaName = $nota->getRandomName();
+                $nota->move(FCPATH . 'nota', $notaName);
+            } else {
+                return $this->fail('File harus berukuran maksimal 5MB dan berformat jpg, png, atau jpeg.');
+            }
+        }
+
         $data = [
-            'id' => $this->request->getVar('id'),
             'tanggal_pengeluaran' => $this->request->getVar('tanggal_pengeluaran'),
-            'kategori_pengeluaran' => $this->request->getVar('kategori_pengeluaran'),
-            'nama_pengeluaran' => $this->request->getVar('nama_pengeluaran'),
+            'id_kegiatan' => $this->request->getVar('id_kegiatan'),
+            'qty_pengeluaran' => $this->request->getVar('qty_pengeluaran'),
             'deskripsi_pengeluaran' => $this->request->getVar('deskripsi_pengeluaran'),
-            'nota_pengeluaran' => $this->request->getVar('nota_pengeluaran'),
+            'nota_pengeluaran' => $notaName,
             'harga_pengeluaran' => $this->request->getVar('harga_pengeluaran'),
             'total_pengeluaran' => $this->request->getVar('total_pengeluaran')
         ];
-        // $data = json_decode(file_get_contents("php://input"));
-        //$data = $this->request->getPost();
+
         $model->insert($data);
         $response = [
             'status'   => 201,
             'error'    => null,
+            'id'       => $model->getInsertID(),
+            'nota'      =>$notaName,
             'messages' => [
-                'success' => 'Penambahan data Sukses!'
+                'success' => 'Data pengeluaran berhasil ditambahkan!'
             ]
         ];
          
         return $this->respondCreated($response);
     }
  
-    // update product
+    // update pengeluaran
     public function update($id = null)
     {
-        $model = new PengeluaranModel();
-        $json = $this->request->getJSON();
-        if($json){
-            $data = [
-                'id' => $json->id,
-                'tanggal_pengeluaran' => $json->tanggal_pengeluaran,
-                'kategori_pengeluaran' => $json->kategori_pengeluaran,
-                'nama_pengeluaran' => $json->nama_pengeluaran,
-                'deskripsi_pengeluaran' => $json->deskripsi_pengeluaran,
-                'nota_pengeluaran' => $json->nota_pengeluaran,
-                'harga_pengeluaran' => $json->harga_pengeluaran,
-                'total_pengeluaran' => $json->total_pengeluaran
-            ];
-        }else{
-            $input = $this->request->getRawInput();
-            $data = [
-                'id' => $input['id'],
-                'tanggal_pengeluaran' => $input['tanggal_pengeluaran'],
-                'kategori_pengeluaran' => $input['kategori_pengeluaran'],
-                'nama_pengeluaran' => $input['nama_pengeluaran'],
-                'deskripsi_pengeluaran' => $input['deskripsi_pengeluaran'],
-                'nota_pengeluaran' => $input['nota_pengeluaran'],
-                'harga_pengeluaran' => $input['harga_pengeluaran'],
-                'total_pengeluaran' => $input['total_pengeluaran']
-            ];
+        // Validasi data
+        if (!$this->validate([
+            'tanggal_pengeluaran' => 'required',
+            'id_kegiatan' => 'required',
+            'qty_pengeluaran' => 'required|numeric|greater_than_equal_to[0]',
+            'deskripsi_pengeluaran' => 'required',
+            'harga_pengeluaran' => 'required|numeric|greater_than_equal_to[0]',
+            'total_pengeluaran' => 'required|numeric|greater_than_equal_to[0]',
+        ])) {
+            return $this->fail($this->validator->getErrors());
         }
-        // Insert to Database
+        
+        $model = new PengeluaranModel();
+        $existingData = $model->find($id);
+        
+        $nota = $this->request->getFile('nota_pengeluaran');
+        $notaName = null;
+        if ($nota && !$nota->hasMoved()) {
+            if ($nota->getSize() <= 5242880 && in_array($nota->getExtension(), ['jpg', 'png', 'jpeg'])) {
+                $notaName = $nota->getRandomName();
+                $nota->move(FCPATH . 'nota', $notaName);
+                if ($existingData && $existingData['nota_pengeluaran'] && $existingData['nota_pengeluaran'] !== $notaName) {
+                    @unlink(FCPATH . 'nota/' . $existingData['nota_pengeluaran']);
+                }
+            } else {
+                return $this->fail('File harus berukuran maksimal 5MB dan berformat jpg, png, atau jpeg.');
+            }
+        } else {
+            $notaName = $existingData['nota_pengeluaran'];
+        }
+
+        $data = [
+            'tanggal_pengeluaran' => $this->request->getVar('tanggal_pengeluaran'),
+            'id_kegiatan' => $this->request->getVar('id_kegiatan'),
+            'qty_pengeluaran' => $this->request->getVar('qty_pengeluaran'),
+            'deskripsi_pengeluaran' => $this->request->getVar('deskripsi_pengeluaran'),
+            'nota_pengeluaran' => $notaName,
+            'harga_pengeluaran' => $this->request->getVar('harga_pengeluaran'),
+            'total_pengeluaran' => $this->request->getVar('total_pengeluaran')
+        ];
+
+
         $model->update($id, $data);
         $response = [
             'status'   => 200,
             'error'    => null,
             'messages' => [
-                'success' => 'Data Updated'
+                'success' => 'Data pengeluaran berhasil diperbarui'
             ]
         ];
         return $this->respond($response);
     }
- 
-    // delete product
+    // delete pengeluaran
     public function delete($id = null)
     {
         $model = new PengeluaranModel();
         $data = $model->find($id);
+        if ($data && $data['nota_pengeluaran']) {
+            @unlink(FCPATH . 'nota/' . $data['nota_pengeluaran']);
+        }
         if($data){
             $model->delete($id);
             $response = [
                 'status'   => 200,
                 'error'    => null,
                 'messages' => [
-                    'success' => 'Data Deleted'
+                    'success' => 'Data pengeluaran berhasil dihapus'
                 ]
             ];
              
             return $this->respondDeleted($response);
         }else{
-            return $this->failNotFound('No Data Found with number '.$id);
+            return $this->failNotFound('Tidak ada data dengan id '.$id);
         }
          
     }
-    
- 
- 
 }

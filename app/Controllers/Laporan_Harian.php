@@ -7,7 +7,8 @@ use App\Models\Laporan_HarianModel;
 class Laporan_Harian extends ResourceController
 {
     use ResponseTrait;
-    // get all product
+    
+    // get all laporan
     public function index()
     {
         $model = new Laporan_HarianModel();
@@ -15,83 +16,52 @@ class Laporan_Harian extends ResourceController
         return $this->respond($data);
     }
  
-    // get single product
-    public function show($id = null)
+    // get all laporan by id_kegiatan
+    public function show($id_kegiatan = null)
     {
         $model = new Laporan_HarianModel();
-        $data = $model->getWhere(['id' => $id])->getResult();
-        if($data){
-            return $this->respond($data);
-        }else{
-            return $this->failNotFound('No Data Found with id '.$id);
+        $data = $model->where(['id_kegiatan' => $id_kegiatan])->findAll();
+        foreach($data as $index => $row){
+            $data[$index]['tugas'] = $model->getTugas($row['id']);
         }
+        return $this->respond($data);
     }
  
-    // create a product
+    // create a laporan
     public function create()
     {
         $model = new Laporan_HarianModel();
+        $tugas = explode(',', $this->request->getVar('tugas'));
         $data = [
-            'id' => $this->request->getVar('id'),
-            'nama_kegiatan' => $this->request->getVar('nama_kegiatan'),
-            'lokasi' => $this->request->getVar('lokasi'),
-            'penanggung_jawab' => $this->request->getVar('penanggung_jawab'),
-            'agenda' => $this->request->getVar('agenda'),
-            'penjelasan' => $this->request->getVar('penjelasan')
+            'id_kegiatan' => $this->request->getVar('id_kegiatan'),
+            'deskripsi_laporan' => $this->request->getVar('deskripsi_laporan'),
+            'tanggal' => $this->request->getVar('tanggal')
         ];
-        // $data = json_decode(file_get_contents("php://input"));
-        //$data = $this->request->getPost();
         $model->insert($data);
-        $response = [
-            'status'   => 201,
-            'error'    => null,
-            'messages' => [
-                'success' => 'Penambahan data Sukses!'
-            ]
-        ];
-         
-        return $this->respondCreated($response);
+        foreach($tugas as $tugasId){
+            $model->addTugas($model->getInsertID(),$tugasId);
+        }
+        return $this->show($data['id_kegiatan']);
     }
  
-    // update product
+    // update laporan
     public function update($id = null)
     {
         $model = new Laporan_HarianModel();
-        $json = $this->request->getJSON();
-        if($json){
-            $data = [
-                'id' => $json->id,
-                'nama_kegiatan' => $json->nama_kegiatan,
-                'lokasi' => $json->lokasi,
-                'penanggung_jawab' => $json->penanggung_jawab,
-                'agenda' => $json->agenda,
-                'penjelasan' => $json->penjelasan
-
-            ];
-        }else{
-            $input = $this->request->getRawInput();
-            $data = [
-                'id' => $input['id'],
-                'nama_kegiatan' => $input['nama_kegiatan'],
-                'lokasi' => $input['lokasi'],
-                'penanggung_jawab' => $input['penanggung_jawab'],
-                'agenda' => $input['agenda'],
-                'penjelasan' => $input['penjelasan']
-            ];
-        }
-        // Insert to Database
-        $model->update($id, $data);
-        $response = [
-            'status'   => 200,
-            'error'    => null,
-            'messages' => [
-                'success' => 'Data Updated'
-            ]
+        $model->deleteTugas($id);
+        $tugas = explode(',', $this->request->getVar('tugas'));
+        $id_kegiatan = $this->request->getVar('id_kegiatan');
+        $data = [
+            'deskripsi_laporan' => $this->request->getVar('deskripsi_laporan'),
         ];
-        return $this->respond($response);
+        $model->update($id, $data);
+        foreach($tugas as $tugasId){
+            $model->addTugas($id, $tugasId);
+        }
+        return $this->show($id_kegiatan);
     }
  
-    // delete product
+    // delete laporan
     public function delete($id = null)
     {
         $model = new Laporan_HarianModel();
@@ -102,17 +72,14 @@ class Laporan_Harian extends ResourceController
                 'status'   => 200,
                 'error'    => null,
                 'messages' => [
-                    'success' => 'Data Deleted'
+                    'success' => 'Data laporan berhasil dihapus'
                 ]
             ];
              
             return $this->respondDeleted($response);
         }else{
-            return $this->failNotFound('No Data Found with id '.$id);
+            return $this->failNotFound('Tidak ada data ditemukan dengan id '.$id);
         }
          
     }
-    
- 
- 
 }

@@ -13,7 +13,7 @@ class UserModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id','nama','ttl','gender','pendidikan_terakhir','pekerjaan','ktp','alamat','telp','email', 'password', 'kegiatan_id'];
+    protected $allowedFields    = ['id','nama','ttl','gender','pendidikan_terakhir','pekerjaan','ktp','alamat','telp','email', 'password', 'kegiatan_id','role'];
     
     public function getKecakapan($id)
     {

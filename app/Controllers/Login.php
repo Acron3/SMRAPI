@@ -34,7 +34,6 @@ class Login extends ResourceController
 
       if($user){
          $data = $user;
-         $data['role'] = 'user';
       }else{
          $data = $admin;
          $data['nama'] = "Admin";

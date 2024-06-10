@@ -101,24 +101,6 @@ class User extends ResourceController
     public function update($id = null)
     {
         $model = new UserModel();
-        // $json = $this->request->getJSON();
-        // if($json){
-        //     $data = [
-        //         'nama' => $json->nama,
-        //         'password' => password_hash($json->password,PASSWORD_DEFAULT),
-        //         'ttl' => $json->ttl,
-        //         'gender' => $json->gender,
-        //         'pendidikan_terakhir' => $json->pendidikan_terakhir,
-        //         'pekerjaan' => $json->pekerjaan,
-        //         'ktp' => $json->ktp,
-        //         'alamat' => $json->alamat,
-        //         'telp' => $json->telp
-        //     ];
-        // }else{
-        //     $input = $this->request->getRawInput();
-            
-        // }
-
         $data = [
                 'nama' => $this->request->getVar('nama'),
                 'password' => password_hash($this->request->getVar('password'),PASSWORD_DEFAULT),
@@ -170,5 +152,20 @@ class User extends ResourceController
         $model = new UserModel();
         $data = $model->addKegiatan($id,$kegiatanId);
         return $this->respond($data);
+    }
+
+    // get users by kegiatan id
+    public function tim($id_kegiatan = null)
+    {
+        $model = new UserModel();
+        $data = $model->where('kegiatan_id', $id_kegiatan)->findAll();
+        foreach ($data as $index => $row){
+            $data[$index]['kecakapan'] = $model->getKecakapan($row['id']);
+        }
+        if($data){
+            return $this->respond($data);
+        }else{
+            return $this->failNotFound('No Data Found with kegiatan_id '.$id_kegiatan);
+        }
     }
 }

@@ -22,7 +22,10 @@ class Target extends ResourceController
     public function show($no = null)
     {
         $model = new TargetModel();
-        $data = $model->getWhere(['no' => $no])->getResult();
+        $data = $model->where(['kegiatan_id' => $no])->findAll();
+        foreach($data as $index => $row){
+            $data[$index]['tugas'] = $model->getTugas($row['no']);
+        }
         if($data){
             return $this->respond($data);
         }else{

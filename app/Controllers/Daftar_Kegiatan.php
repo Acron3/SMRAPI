@@ -3,7 +3,9 @@
 use CodeIgniter\RESTful\ResourceController;
 use CodeIgniter\API\ResponseTrait;
 use App\Models\Daftar_KegiatanModel;
- 
+use App\Models\PemasukanModel;
+use App\Models\PengeluaranModel;
+
 class Daftar_Kegiatan extends ResourceController
 {
     use ResponseTrait;
@@ -22,7 +24,7 @@ class Daftar_Kegiatan extends ResourceController
     public function show($no = null)
     {
         $model = new Daftar_KegiatanModel();
-        $data = $model->getWhere(['no' => $no])->getResult();
+        $data = $model->getWhere(['no' => $no])->getRow();
         if($data){
             return $this->respond($data);
         }else{
@@ -122,6 +124,37 @@ class Daftar_Kegiatan extends ResourceController
          
     }
     
- 
+public function rab_realisasi($id_kegiatan = null){
+    $pemasukanModel = new PemasukanModel();
+    $pengeluaranModel = new PengeluaranModel();
+    $pemasukan = $pemasukanModel->getMonthlySumByKegiatan($id_kegiatan);
+    $pengeluaran = $pengeluaranModel->getMonthlySumByKegiatan($id_kegiatan);
+
+    // Gabungkan atribut dari pemasukan dan pengeluaran berdasarkan bulan dan tahun
+    $gabungan = [];
+    foreach ($pemasukan as $item) {
+        $gabungan[$item->tanggal]['pemasukan'] = $item->jumlah_bulanan;
+    }
+    foreach ($pengeluaran as $item) {
+        $gabungan[$item->tanggal]['pengeluaran'] = $item->total_bulanan;
+    }
+
+    // Ubah format data menjadi array yang diurutkan berdasarkan bulan dan tahun
+    $data = [];
+    foreach ($gabungan as $tgl => $values) {
+        $data[] = [
+            'tanggal' => $tgl,
+            'pemasukan' => $values['pemasukan'] ?? 0,
+            'pengeluaran' => $values['pengeluaran'] ?? 0
+        ];
+    }
+
+    // Urutkan data berdasarkan tanggal secara ascending
+    usort($data, function($a, $b) {
+        return strtotime($a['tanggal']) - strtotime($b['tanggal']);
+    });
+
+    return $this->respond($data);
+}
  
 }

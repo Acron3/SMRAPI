@@ -5,6 +5,7 @@ use CodeIgniter\API\ResponseTrait;
 use App\Models\Daftar_KegiatanModel;
 use App\Models\PemasukanModel;
 use App\Models\PengeluaranModel;
+use App\Models\UserModel;
 
 class Daftar_Kegiatan extends ResourceController
 {
@@ -16,6 +17,10 @@ class Daftar_Kegiatan extends ResourceController
         $data = $model->orderBy('no', 'DESC')->findAll();
         foreach ($data as $index => $row){
             $data[$index]['user'] = $model->getUser($row['no']);
+            $userModel = new UserModel();
+            foreach ($data[$index]['user'] as $idx => $user){
+                $data[$index]['user'][$idx]['kecakapan'] = $userModel->getKecakapan($user['user_id']);
+            }
         }
         return $this->respond($data);
     }

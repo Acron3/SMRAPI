@@ -20,11 +20,8 @@ class Pemasukan extends ResourceController
     {
         $model = new PemasukanModel();
         $data = $model->where(['id_kegiatan' => $id_kegiatan])->findAll();
-        if($data){
-            return $this->respond($data);
-        }else{
-            return $this->failNotFound('Tidak ada data pemasukan dengan id_kegiatan '.$id_kegiatan);
-        }
+        return $this->respond($data);
+        
     }
     
     // get pemasukan by id_kegiatan

@@ -24,5 +24,14 @@ class PengeluaranModel extends Model
         $query = $builder->get();
         return $query->getResult();
     }
+    
+     public function getMonthlySum()
+    {
+        $builder = $this->db->table($this->table);
+        $builder->select("DATE_FORMAT(tanggal_pengeluaran, '%Y-%m') AS bulan, SUM(total_pengeluaran) AS total_bulanan");
+        $builder->groupBy("tanggal_pengeluaran");
+        $query = $builder->get();
+        return $query->getResult();
+    }
    
 }

@@ -23,5 +23,36 @@ class Daftar_KegiatanModel extends Model
         $query = $builder->get();
         return $query->getResultArray();
     }
+    
+    public function getTarget($id)
+    {
+        $builder = $this->db->table('target');
+        $builder->where('target.kegiatan_id',$id);
+        $query = $builder->get();
+        return $query->getResultArray();
+    }
+    
+    public function deleteUser($id,$userId)
+    {
+        $builder = $this->db->table('kegiatan_user');
+        $builder->where('kegiatan_user.kegiatan_id',$id);
+        $builder->where('kegiatan_user.user_id',$userId);
+        $query = $builder->delete();
+        return $query;
+    }
+    
+    public function dispatchUser($id)
+    {
+        $builder = $this->db->table('user');
+        $builder->where('kegiatan_id',$id);
+        $builder->update(['kegiatan_id' => null,'role' => '-']);
+    }
+    
+    public function dispatchKoor($id)
+    {
+        $builder = $this->db->table('koordinator_kecakapan');
+        $builder->where('kegiatan_id',$id);
+        $builder->update(['kegiatan_id' => null]);
+    }
 
 }

@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\AdminModel;
+use App\Models\KoordinatorKecakapanModel;
 use CodeIgniter\RESTful\ResourceController;
 use CodeIgniter\API\ResponseTrait;
 use App\Models\UserModel;
@@ -20,20 +21,25 @@ class Login extends ResourceController
 
       $userModel = new UserModel;
       $adminModel = new AdminModel;
+      $koordinatorKecakapanModel = new KoordinatorKecakapanModel;
       
       $user = $userModel->where('email', $email)->first();
       $admin = $adminModel->where('email', $email)->first();
+      $koordinatorKecakapan = $koordinatorKecakapanModel->where('email', $email)->first();
       
-      if (!$user && !$admin) {
-         return $this->respond(['status' => false, 'message' => 'Email salah'], 401);
+      if (!$user && !$admin && !$koordinatorKecakapan) {
+         return $this->respond(['status' => false, 'message' => 'Email atau Password salah'], 401);
       }
 
-      if (!password_verify($password, ($user ? $user['password'] : $admin['password']))) {
-         return $this->respond(['status' => false, 'message' => 'Password salah'], 401);
+      if (!password_verify($password, ($user ? $user['password'] : ($admin ? $admin['password'] : $koordinatorKecakapan['password'])))) {
+         return $this->respond(['status' => false, 'message' => 'Email atau Password salah'], 401);
       }
 
       if($user){
          $data = $user;
+      }else if($koordinatorKecakapan){
+         $data = $koordinatorKecakapan;
+         $data['role'] = 'koordinator';
       }else{
          $data = $admin;
          $data['nama'] = "Admin";

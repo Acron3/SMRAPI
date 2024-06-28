@@ -12,7 +12,28 @@ class Pengeluaran extends ResourceController
     public function index()
     {
         $model = new PengeluaranModel();
-        $data = $model->orderBy('id', 'DESC')->findAll();
+        $pengeluaran = $model->getMonthlySum();
+        $bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+        // Gabungkan atribut dari pemasukan dan pengeluaran berdasarkan bulan dan tahun
+        $gabungan = [];
+        foreach ($pengeluaran as $item) {
+            $tanggal = explode('-', $item->bulan);
+            $gabungan[$bulan[$tanggal[1] - 1].' '.$tanggal[0]]['pengeluaran'] = $item->total_bulanan;
+        }
+        // Ubah format data menjadi array yang diurutkan berdasarkan bulan dan tahun
+        $data = [];
+        foreach ($gabungan as $tgl => $values) {
+            $data[] = [
+                'tanggal' => $tgl,
+                'pengeluaran' => $values['pengeluaran'] ?? 0
+            ];
+        }
+
+        // Urutkan data berdasarkan tanggal secara ascending
+        usort($data, function($a, $b) {
+            return strtotime($a['tanggal']) - strtotime($b['tanggal']);
+        });
         return $this->respond($data);
     }
  

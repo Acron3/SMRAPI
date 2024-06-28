@@ -13,7 +13,7 @@ class Daftar_TugasModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['no','nama_kegiatan','target','tanggal_mulai','deadline','status'];
+    protected $allowedFields    = ['nama_tugas','target_id','status'];
 
    
 }

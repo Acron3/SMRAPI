@@ -32,22 +32,21 @@ class Daftar_Tugas extends ResourceController
     {
         $model = new Daftar_TugasModel();
         $data = [
-            'no' => $this->request->getVar('no'),
-            'nama_kegiatan' => $this->request->getVar('nama_kegiatan'),
-            'target' => $this->request->getVar('target'),
-            'tanggal_mulai' => $this->request->getVar('tanggal_mulai'),
-            'deadline' => $this->request->getVar('deadline'),
+            'nama_tugas' => $this->request->getVar('nama_tugas'),
+            'target_id' => $this->request->getVar('target_id'),
             'status' => $this->request->getVar('status')
         ];
-        // $data = json_decode(file_get_contents("php://input"));
-        //$data = $this->request->getPost();
+        
         $model->insert($data);
+        $data['id_tugas'] = $model->getInsertID();
+        $data['no'] = $data['target_id'];
         $response = [
             'status'   => 201,
             'error'    => null,
             'messages' => [
                 'success' => 'Penambahan data Sukses!'
-            ]
+            ],
+            'data' => $data
         ];
          
         return $this->respondCreated($response);
@@ -61,10 +60,8 @@ class Daftar_Tugas extends ResourceController
         if($json){
             $data = [
                 'no' => $json->no,
-                'nama_kegiatan' => $json->nama_kegiatan,
-                'target' => $json->target,
-                'tanggal_mulai' => $json->tanggal_mulai,
-                'deadlinei' => $json->deadline,
+                'nama_tugas' => $json->nama_tugas,
+                'target_id' => $json->target_id,
                 'status' => $json->status
 
             ];
@@ -72,10 +69,8 @@ class Daftar_Tugas extends ResourceController
             $input = $this->request->getRawInput();
             $data = [
                 'no' => $input['no'],
-                'nama_kegiatan' => $input['nama_kegiatan'],
-                'target' => $input['target'],
-                'tanggal_mulai' => $input['tanggal_mulai'],
-                'deadline' => $input['deadline'],
+                'nama_tugas' => $input['nama_tugas'],
+                'target_id' => $input['target_id'],
                 'status' => $input['status']
             ];
         }

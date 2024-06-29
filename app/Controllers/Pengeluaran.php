@@ -101,12 +101,11 @@ class Pengeluaran extends ResourceController
     }
  
     // update pengeluaran
-    public function update($id = null)
+    public function updatePengeluaran($id = null)
     {
         // Validasi data
         if (!$this->validate([
             'tanggal_pengeluaran' => 'required',
-            'id_kegiatan' => 'required',
             'qty_pengeluaran' => 'required|numeric|greater_than_equal_to[0]',
             'deskripsi_pengeluaran' => 'required',
             'harga_pengeluaran' => 'required|numeric|greater_than_equal_to[0]',
@@ -151,7 +150,8 @@ class Pengeluaran extends ResourceController
             'error'    => null,
             'messages' => [
                 'success' => 'Data pengeluaran berhasil diperbarui'
-            ]
+            ],
+            'data' => $data
         ];
         return $this->respond($response);
     }

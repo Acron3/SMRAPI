@@ -38,6 +38,7 @@ $routes->delete('kecakapan/(:num)', 'Kecakapan::delete/$1', ['filter' => 'auth']
 $routes->get('user/(:num)', 'User::show/$1', ['filter' => 'auth']);
 $routes->post('user/register_kegiatan', 'User::registerKegiatan', ['filter' => 'auth']);
 $routes->put('daftar_kegiatan/validasi/(:any)', 'Daftar_Kegiatan::validasi/$1', ['filter' => 'auth']);
+$routes->post('validasiLaporan/(:any)', 'Daftar_Kegiatan::validasiLaporan/$1', ['filter' => 'auth']);
 $routes->resource('register');
 $routes->resource('koordinatorKecakapan');
 $routes->get('koordinatorKecakapan/kegiatan/(:num)', 'KoordinatorKecakapan::showByKegiatan/$1', ['filter' => 'auth']);
@@ -53,6 +54,7 @@ $routes->get('rab_realisasi/(:num)', 'Daftar_Kegiatan::rab_realisasi/$1', ['filt
 $routes->resource('pendaftaran_relawan', ['filter' => 'auth']);
 $routes->resource('agenda', ['filter' => 'auth']);
 $routes->resource('pengeluaran', ['filter' => 'auth']);
+$routes->post('updatePengeluaran/(:num)', 'Pengeluaran::updatePengeluaran/$1', ['filter' => 'auth']);
 
 $routes->match(['options'], '(:any)', function() {
     return service('response')

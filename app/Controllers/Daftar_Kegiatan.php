@@ -3,6 +3,7 @@
 use CodeIgniter\RESTful\ResourceController;
 use CodeIgniter\API\ResponseTrait;
 use App\Models\Daftar_KegiatanModel;
+use App\Models\Laporan_HarianModel;
 use App\Models\PemasukanModel;
 use App\Models\PengeluaranModel;
 use App\Models\TargetModel;
@@ -69,7 +70,6 @@ class Daftar_Kegiatan extends ResourceController
                 'success' => 'Penambahan data Sukses!'
             ]
         ];
-         
         return $this->respondCreated($response);
     }
  
@@ -226,6 +226,19 @@ class Daftar_Kegiatan extends ResourceController
                 ]
             ];
         }
+        return $this->respond($response);
+    }
+
+    public function validasiLaporan($id){
+        $model = new Laporan_HarianModel();
+        $model->update($id,['status' => 'valid']);
+        $response = [
+                'status'   => 200,
+                'error'    => null,
+                'messages' => [
+                    'success' => 'Laporan Tervalidasi'
+                ]
+            ];
         return $this->respond($response);
     }
 }

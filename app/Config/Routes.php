@@ -30,6 +30,7 @@ $routes->post('register', 'Register::index');
 $routes->post('user', 'User::create');
 $routes->get('user', 'User::index', ['filter' => 'auth']);
 $routes->put('user/(:num)', 'User::update/$1', ['filter' => 'auth']);
+$routes->delete('user/(:num)', 'User::delete/$1', ['filter' => 'auth']);
 $routes->get('tim/(:num)', 'User::tim/$1', ['filter' => 'auth']);
 $routes->get('kecakapan', 'Kecakapan::index');
 $routes->post('kecakapan', 'Kecakapan::create', ['filter' => 'auth']);

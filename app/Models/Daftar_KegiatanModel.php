@@ -41,6 +41,14 @@ class Daftar_KegiatanModel extends Model
         return $query;
     }
     
+    public function clearKegiatanUser($userId)
+    {
+        $builder = $this->db->table('kegiatan_user');
+        $builder->where('kegiatan_user.user_id',$userId);
+        $query = $builder->delete();
+        return $query;
+    }
+    
     public function dispatchUser($id)
     {
         $builder = $this->db->table('user');

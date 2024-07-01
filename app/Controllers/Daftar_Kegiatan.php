@@ -3,6 +3,7 @@
 use CodeIgniter\RESTful\ResourceController;
 use CodeIgniter\API\ResponseTrait;
 use App\Models\Daftar_KegiatanModel;
+use App\Models\Daftar_TugasModel;
 use App\Models\Laporan_HarianModel;
 use App\Models\PemasukanModel;
 use App\Models\PengeluaranModel;
@@ -228,7 +229,7 @@ class Daftar_Kegiatan extends ResourceController
         $id_user = $this->request->getVar('id_user');
         
         $model = new Daftar_KegiatanModel();
-        $data = $model->deleteUser($id_kegiatan,$id_user);
+        $model->deleteUser($id_kegiatan,$id_user);
         $response=[];
         if($aksi == 'accept'){
             $userModel = new UserModel();
@@ -237,6 +238,7 @@ class Daftar_Kegiatan extends ResourceController
                 'role' => 'Anggota'
             ];
             if($userModel->update($id_user,$updateData)){
+                $model->clearKegiatanUser($id_user);
                 $response = [
                     'status'   => 200,
                     'error'    => null,
@@ -276,12 +278,18 @@ class Daftar_Kegiatan extends ResourceController
     public function validasiLaporan($id){
         $model = new Laporan_HarianModel();
         $model->update($id,['status' => 'valid']);
+        $tugas = $model->getTugas($id);
+        foreach ($tugas as $tgs){
+            $tugasModel = new Daftar_TugasModel();
+            $tugasModel->update($tgs['no'],['status' => 'Terlaksana']);
+        }
         $response = [
                 'status'   => 200,
                 'error'    => null,
                 'messages' => [
                     'success' => 'Laporan Tervalidasi'
-                ]
+                ],
+                'tugas' => $tugas
             ];
         return $this->respond($response);
     }

@@ -38,7 +38,6 @@ class Target extends ResourceController
     {
         $model = new TargetModel();
         $data = [
-            'no' => $this->request->getVar('no'),
             'nama_target' => $this->request->getVar('nama_target'),
             'target_selesai' => $this->request->getVar('target_selesai'),
             'progress' => $this->request->getVar('progress'),

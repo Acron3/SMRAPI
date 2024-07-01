@@ -13,7 +13,7 @@ class TargetModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['no','nama_target','target_selesai','progress','sisa_hari'];
+    protected $allowedFields    = ['nama_target','target_mulai','target_selesai','progress','kegiatan_id'];
 
    public function getTugas($id)
     {

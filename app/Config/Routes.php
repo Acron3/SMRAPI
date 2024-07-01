@@ -41,7 +41,7 @@ $routes->put('daftar_kegiatan/validasi/(:any)', 'Daftar_Kegiatan::validasi/$1', 
 $routes->post('validasiLaporan/(:any)', 'Daftar_Kegiatan::validasiLaporan/$1', ['filter' => 'auth']);
 $routes->resource('register');
 $routes->resource('koordinatorKecakapan');
-$routes->get('koordinatorKecakapan/kegiatan/(:num)', 'KoordinatorKecakapan::showByKegiatan/$1', ['filter' => 'auth']);
+$routes->get('showKoordinatorByKegiatan/(:num)', 'KoordinatorKecakapan::showByKegiatan/$1', ['filter' => 'auth']);
 //$routes->resource('user');
 $routes->resource('daftar_kegiatan', ['filter' => 'auth']);
 $routes->resource('laporan_harian', ['filter' => 'auth']);

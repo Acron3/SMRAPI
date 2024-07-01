@@ -8,6 +8,7 @@ use App\Models\PemasukanModel;
 use App\Models\PengeluaranModel;
 use App\Models\TargetModel;
 use App\Models\UserModel;
+use DateTime;
 
 class Daftar_Kegiatan extends ResourceController
 {
@@ -55,14 +56,59 @@ class Daftar_Kegiatan extends ResourceController
             'rab' => $this->request->getVar('rab'),
             'tgl_mulai' => $this->request->getVar('tgl_mulai'),
             'tgl_selesai' => $this->request->getVar('tgl_selesai'),
-            'status' => $this->request->getVar('status')
+            'status' => 'Dalam Proses'
         ];
-        // $data = json_decode(file_get_contents("php://input"));
-        //$data = $this->request->getPost();
         $model->insert($data);
+        
+        $kegiatan_id = $model->getInsertID();
         $ketua = $this->request->getVar('ketua');
+        
         $userModel = new UserModel();
-        $userModel->update($ketua,['kegiatan_id' => $model->getInsertID(),'role' => 'Ketua']);
+        $userModel->update($ketua,['kegiatan_id' => $kegiatan_id,'role' => 'Ketua']);
+        
+        $targetModel = new TargetModel();
+        $startDate = new DateTime($data['tgl_mulai']);
+        $endDate = new DateTime($data['tgl_selesai']);
+        $interval = $startDate->diff($endDate);
+        
+        $totalDays = $interval->days;
+        $daysPerPhase = floor($totalDays / 4);
+        $remainingDays = $totalDays % 4;
+
+        $praPelaksanaanEnd = clone $startDate;
+        $praPelaksanaanEnd->modify("+$daysPerPhase days");
+
+        $pelaksanaanStart = clone $praPelaksanaanEnd;
+        $pelaksanaanEnd = clone $pelaksanaanStart;
+        $pelaksanaanEnd->modify("+".($daysPerPhase * 2 + $remainingDays)." days");
+
+        $pascaPelaksanaanStart = clone $pelaksanaanEnd;
+        
+        $target = [
+            [
+                'nama_target' => 'PRA-PELAKSANAAN',
+                'target_mulai' => $data['tgl_mulai'],
+                'target_selesai' => $praPelaksanaanEnd->format('Y-m-d'),
+                'progress' => 0,
+                'kegiatan_id' => $model->getInsertID()
+            ],
+            [
+                'nama_target' => 'PELAKSANAAN',
+                'target_mulai' => $pelaksanaanStart->format('Y-m-d'),
+                'target_selesai' => $pelaksanaanEnd->format('Y-m-d'),
+                'progress' => 0,
+                'kegiatan_id' => $model->getInsertID()
+            ],
+            [
+                'nama_target' => 'PASCA-PELAKSANAAN',
+                'target_mulai' => $pascaPelaksanaanStart->format('Y-m-d'),
+                'target_selesai' => $data['tgl_selesai'],
+                'progress' => 0,
+                'kegiatan_id' => $model->getInsertID()
+            ]
+        ];
+        
+       $targetModel->insertBatch($target);
         $response = [
             'status'   => 201,
             'error'    => null,
@@ -125,7 +171,6 @@ class Daftar_Kegiatan extends ResourceController
     public function delete($no = null)
     {
         $model = new Daftar_KegiatanModel();
-        $userModel = new UserModel();
         $data = $model->find($no);
         if($data){
             $model->dispatchUser($no);
@@ -138,7 +183,6 @@ class Daftar_Kegiatan extends ResourceController
                     'success' => 'Data Deleted'
                 ]
             ];
-             
             return $this->respondDeleted($response);
         }else{
             return $this->failNotFound('No Data Found with no '.$no);
